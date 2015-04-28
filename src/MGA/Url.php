@@ -41,4 +41,22 @@ class Url
         }
         return $protocol . '://' . implode('?', $bits);
     }
+
+    /**
+     * Takes a full valid url (output of the "clean" function)
+     * and returns it without the protocol bit.
+     * This could probably have been written better as well.
+     *
+     * @param  string $input
+     * @return string
+     */
+    public function removeProtocol($input)
+    {
+        $bits = explode('://', $input);
+        if (strpos($bits[0],self::DEFAULT_PROTOCOL) !== false) {
+            return $bits[1];
+        } else {
+            return $bits[0];
+        }
+    }
 }

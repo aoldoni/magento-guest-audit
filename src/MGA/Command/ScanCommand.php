@@ -17,6 +17,7 @@ use MGA\Check\Sitemap;
 use MGA\Check\TechHeader;
 use MGA\Check\UnreachablePath;
 use MGA\Check\Version;
+use MGA\Check\ShopliftBug;
 use MGA\Request;
 use MGA\Url;
 use Symfony\Component\Console\Command\Command;
@@ -73,6 +74,12 @@ class ScanCommand extends Command
                 InputOption::VALUE_NONE,
                 'Show all modules that were scanned for, not just matches'
             )
+            ->addOption(
+                'admin-url',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Check for the known shoplift bug. Doesn\'t run the check if this parameter is not informed.'
+            )
         ;
     }
 
@@ -98,6 +105,7 @@ class ScanCommand extends Command
         $this->checkSitemapExists();
         $this->checkServerTech();
         $this->checkUnreachablePath($input->getOption('all-paths'));
+        $this->checkShopliftBug($input->getOption('admin-url'));
     }
 
     /**
@@ -241,6 +249,35 @@ class ScanCommand extends Command
         } else {
             $this->output
                 ->writeln('<error>Sitemap is not accessible:</error> ' . $url);
+        }
+    }
+
+    /**
+     * Check for Shoplift bug using Magento api
+     */
+    protected function checkShopliftBug($adminUrl = null)
+    {
+        if ($adminUrl != null) {
+            $this->writeHeader('Shoplift Bug Check');
+
+            $shopliftNug = new ShopliftBug;
+            $url = new Url;
+            $result = $shopliftNug->check($url->removeProtocol($this->url), $adminUrl);
+
+            $output = '';
+            if ($result['status'] !== 'ok') {
+                $output = '<error>Fail</error>';
+            } else {
+                $output = '<bg=green>Pass</bg=green>';
+            }
+
+            $this->output
+                ->writeln(sprintf("%s, with status '%s' and message '%s'",
+                        $output,
+                        $result['status'],
+                        $result['message']
+                    )
+                );
         }
     }
 
