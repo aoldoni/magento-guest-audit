@@ -88,6 +88,10 @@ Checks additional paths that should not be accesible (this will make the scan ta
 
 Show all modules that we tried to detect, not just those that were found
 
+##### `--admin-url <admin_path>`
+
+Tests shoplift bug in the given path
+
 # Support
 
 Please [create an issue](https://github.com/steverobbins/magento-guest-audit/issues/new) for all bugs and feature requests
